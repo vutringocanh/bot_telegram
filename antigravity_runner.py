@@ -87,6 +87,8 @@ class AntigravityRunner(BaseAgentRunner):
             Config.AGY_PATH,
             "-p",
             effective_prompt,
+            "--add-dir",
+            workspace_dir,
             "--output-format",
             "stream-json",
             "--dangerously-skip-permissions",
