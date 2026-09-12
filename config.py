@@ -34,6 +34,32 @@ class Config:
 
     # Agent mặc định ("antigravity" hoặc "codex")
     DEFAULT_AGENT: str = os.getenv("DEFAULT_AGENT", "antigravity").strip().lower()
+    #Thêm
+        # Cấu hình 9Router / OpenAI-compatible API
+    ROUTER_BASE_URL: str = os.getenv(
+        "ROUTER_BASE_URL",
+        "http://127.0.0.1:20128/v1",
+    ).strip()
+
+    ROUTER_API_KEY: str = os.getenv(
+        "ROUTER_API_KEY",
+        "sk-9router",
+    ).strip()
+
+    ROUTER_MODELS: list[str] = [
+        m.strip()
+        for m in os.getenv(
+            "ROUTER_MODELS",
+            "kr/glm-5,kr/MiniMax-M2.5",
+        ).split(",")
+        if m.strip()
+    ]
+
+    DEFAULT_ROUTER_MODEL: str = os.getenv(
+        "DEFAULT_ROUTER_MODEL",
+        ROUTER_MODELS[0] if ROUTER_MODELS else "kr/glm-5",
+    ).strip()
+
 
     # Cấu hình Antigravity CLI
     DEFAULT_ANTIGRAVITY_MODEL: str = os.getenv(

@@ -5,6 +5,7 @@ from typing import AsyncGenerator, Callable, Optional
 from agent_base import AgentEvent, AgentSession, AgentType, BaseAgentRunner
 from antigravity_runner import AntigravityRunner
 from codex_runner import CodexRunner
+from router_agent import RouterAgentRunner
 from config import Config
 
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class AgentManager:
         self.runners: dict[str, BaseAgentRunner] = {
             AgentType.ANTIGRAVITY: AntigravityRunner(),
             AgentType.CODEX: CodexRunner(),
+            AgentType.ROUTER: RouterAgentRunner(),
         }
         # Lưu agent đang chọn cho từng user: user_id -> "antigravity" | "codex"
         self._user_active_agent: dict[int, str] = {}
@@ -56,6 +58,16 @@ class AgentManager:
                     effort=Config.DEFAULT_CODEX_EFFORT,
                     mode="auto",
                 )
+
+            elif agent_type == AgentType.ROUTER:
+                self._sessions[key] = AgentSession(
+                    user_id=user_id,
+                    agent_type=AgentType.ROUTER,
+                    model=Config.DEFAULT_ROUTER_MODEL,
+                    effort="medium",
+                    mode="auto",
+                )
+
             else:
                 self._sessions[key] = AgentSession(
                     user_id=user_id,

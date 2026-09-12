@@ -7,17 +7,20 @@ from typing import AsyncGenerator, Callable, Optional
 class AgentType:
     ANTIGRAVITY = "antigravity"
     CODEX = "codex"
+    ROUTER = "router"
 
-    ALL = [ANTIGRAVITY, CODEX]
+    ALL = [ANTIGRAVITY, CODEX, ROUTER]
 
     DISPLAY_NAMES = {
         ANTIGRAVITY: "🤖 Antigravity",
         CODEX: "⚡ OpenAI Codex",
+        ROUTER: "🌐 9Router",
     }
 
     EMOJIS = {
         ANTIGRAVITY: "🤖",
         CODEX: "⚡",
+        ROUTER: "🌐",
     }
 
 
