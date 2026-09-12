@@ -1,6 +1,6 @@
 import asyncio
 import pyautogui
-
+import pyperclip
 from system_utils import SystemUtils
 
 
@@ -174,18 +174,48 @@ class ComputerTools:
     @staticmethod
     def type_text(text: str, interval: float = 0.01):
         """
-        Gõ văn bản vào cửa sổ đang active.
+        Gõ văn bản Unicode vào cửa sổ đang active
+        thông qua Clipboard + Ctrl+V.
         """
-        pyautogui.write(
-            str(text),
-            interval=max(0, float(interval)),
-        )
+        text = str(text)
 
-        return {
-            "success": True,
-            "action": "type",
-            "length": len(str(text)),
-        }
+        old_clipboard = None
+
+        try:
+            try:
+                old_clipboard = pyperclip.paste()
+            except Exception:
+                pass
+
+            pyperclip.copy(text)
+
+            pyautogui.hotkey("ctrl", "v")
+
+            # Chờ rất ngắn để Windows/app nhận dữ liệu.
+            if interval > 0:
+                import time
+                time.sleep(min(float(interval), 0.2))
+
+            return {
+                "success": True,
+                "action": "type_unicode",
+                "length": len(text),
+            }
+
+        except Exception as exc:
+            return {
+                "success": False,
+                "action": "type_unicode",
+                "error": str(exc),
+            }
+
+        finally:
+            # Khôi phục clipboard nếu có thể.
+            if old_clipboard is not None:
+                try:
+                    pyperclip.copy(old_clipboard)
+                except Exception:
+                    pass
 
     @staticmethod
     def press(key: str):
