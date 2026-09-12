@@ -4,13 +4,13 @@
     "name": "",
     "plan_type": "Google AI Studio / Consumer",
     "auth_mode": "Google OAuth (consumer)",
-    "saved_at": 1789177019.7647905
+    "saved_at": 1789178135.862049
   },
   "codex": {
     "email": "jenastore.ltd@gmail.com",
     "name": "jena store",
     "plan_type": "FREE",
     "auth_mode": "ChatGPT",
-    "saved_at": 1789177031.2575643
+    "saved_at": 1789178135.8630464
   }
 }

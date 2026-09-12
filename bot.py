@@ -215,7 +215,7 @@ def get_main_dashboard_text(user_id: int, user_first_name: str = "Bạn") -> str
         f"🟢 **LOCAL CONTROLLER - AUTHENTICATED**\n\n"
         f"Chào mừng **{user_first_name}**! Bạn có quyền điều khiển toàn diện hệ thống PC.\n\n"
         f"🛠️ **Agent Đang Dùng:** {agent_badge}\n"
-        f"{acc_text}\n"
+        f"{acc_badge}\n"
         f"🎮 **Cocos Preview:** `{cocos_badge}`\n"
         f"📂 **Workspace:** `{ws}`\n"
         f"🧠 **Model:** `{session.model or 'Mặc định'}`\n"
