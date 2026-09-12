@@ -198,10 +198,14 @@ def get_main_dashboard_text(user_id: int, user_first_name: str = "Bạn") -> str
     # Lấy tài khoản tương ứng
     if active_type == AgentType.ANTIGRAVITY:
         acc = account_mgr.get_antigravity_account()
-        acc_text = f"👤 **Google Account:** `{acc.email}`"
-    else:
+        acc_badge = f"👤 Account: `{acc.email}`"
+
+    elif active_type == AgentType.CODEX:
         acc = account_mgr.get_codex_account()
-        acc_text = f"⚡ **Codex Account:** `{acc.email}` (Gói `{acc.plan_type}`)"
+        acc_badge = f"⚡ Account: `{acc.email}` (Gói `{acc.plan_type}`)"
+
+    elif active_type == AgentType.ROUTER:
+        acc_badge = "🌐 Backend: `9Router`"
 
     # Kiểm tra trạng thái Cocos Preview
     cocos_st = cocos_preview_mgr.get_status_data()
@@ -400,6 +404,7 @@ async def cmd_agent(update: Update, context: ContextTypes.DEFAULT_TYPE):
     active_type = agent_mgr.get_active_agent_type(user.id)
     agy_active = "✅ " if active_type == AgentType.ANTIGRAVITY else "▫️ "
     codex_active = "✅ " if active_type == AgentType.CODEX else "▫️ "
+    router_active = "✅ " if active_type == AgentType.ROUTER else "▫️ "
 
     agy_acc = account_mgr.get_antigravity_account()
     codex_acc = account_mgr.get_codex_account()
@@ -410,13 +415,27 @@ async def cmd_agent(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"  👤 Account: `{agy_acc.email}`\n\n"
         f"• ⚡ **OpenAI Codex:** GPT-5.6 Terra, o3, o3-mini, elevated sandbox & MCP.\n"
         f"  ⚡ Account: `{codex_acc.email}` (Gói `{codex_acc.plan_type}`)\n\n"
+        f"• 🌐 **9Router:** OpenAI-compatible API, dùng model local/free qua Router.\n"
+        f"  🧠 Model: `kr/glm-5`, `kr/MiniMax-M2.5`\n\n"
         f"👇 Nhấn chọn Agent bạn muốn sử dụng:"
     )
 
     keyboard = [
         [
-            InlineKeyboardButton(f"{agy_active}🤖 Antigravity", callback_data="set_agent_antigravity"),
-            InlineKeyboardButton(f"{codex_active}⚡ OpenAI Codex", callback_data="set_agent_codex"),
+            InlineKeyboardButton(
+                f"{agy_active}🤖 Antigravity",
+                callback_data="set_agent_antigravity",
+            ),
+            InlineKeyboardButton(
+                f"{codex_active}⚡ OpenAI Codex",
+                callback_data="set_agent_codex",
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                f"{router_active}🌐 9Router",
+                callback_data="set_agent_router",
+            ),
         ],
         [
             InlineKeyboardButton("👤 Xem chi tiết tài khoản", callback_data="menu_account"),
@@ -731,6 +750,8 @@ def build_model_settings_view(user_id: int) -> tuple[str, InlineKeyboardMarkup]:
     if active_type == AgentType.ANTIGRAVITY:
         acc = account_mgr.get_antigravity_account()
         acc_badge = f"👤 Account: `{acc.email}`"
+    elif active_type == AgentType.ROUTER:
+        acc_badge = "🌐 Backend: `9Router`"
     else:
         acc = account_mgr.get_codex_account()
         acc_badge = f"⚡ Account: `{acc.email}` (Gói `{acc.plan_type}`)"
@@ -933,6 +954,8 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         active_type = agent_mgr.get_active_agent_type(user.id)
         agy_active = "✅ " if active_type == AgentType.ANTIGRAVITY else "▫️ "
         codex_active = "✅ " if active_type == AgentType.CODEX else "▫️ "
+        #thêm
+        router_active = "✅ " if active_type == AgentType.ROUTER else "▫️ "
 
         agy_acc = account_mgr.get_antigravity_account()
         codex_acc = account_mgr.get_codex_account()
@@ -947,21 +970,41 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
         )
         keyboard = [
             [
-                InlineKeyboardButton(f"{agy_active}🤖 Antigravity", callback_data="set_agent_antigravity"),
-                InlineKeyboardButton(f"{codex_active}⚡ OpenAI Codex", callback_data="set_agent_codex"),
+                InlineKeyboardButton(
+                    f"{agy_active}🤖 Antigravity",
+                    callback_data="set_agent_antigravity",
+                ),
+                InlineKeyboardButton(
+                    f"{codex_active}⚡ OpenAI Codex",
+                    callback_data="set_agent_codex",
+                ),
             ],
             [
-                InlineKeyboardButton("👤 Tài khoản AI", callback_data="menu_account"),
-                InlineKeyboardButton("⬅️ Trang chủ", callback_data="menu_main"),
+                InlineKeyboardButton(
+                    f"{router_active}🌐 9Router",
+                    callback_data="set_agent_router",
+                ),
             ],
         ]
         await query.edit_message_text(
             msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
-    elif data in ("set_agent_antigravity", "set_agent_codex"):
-        new_agent = AgentType.ANTIGRAVITY if data == "set_agent_antigravity" else AgentType.CODEX
+    elif data in (
+        "set_agent_antigravity",
+        "set_agent_codex",
+        "set_agent_router",
+    ):
+        agent_map = {
+            "set_agent_antigravity": AgentType.ANTIGRAVITY,
+            "set_agent_codex": AgentType.CODEX,
+            "set_agent_router": AgentType.ROUTER,
+        }
+
+        new_agent = agent_map[data]
+
         agent_mgr.set_active_agent_type(user.id, new_agent)
+
         runner = agent_mgr.get_active_runner(user.id)
         session = agent_mgr.get_session(user.id, new_agent)
 
@@ -969,17 +1012,33 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
             f"✅ **Đã chuyển sang {runner.display_name}!**\n\n"
             f"🧠 **Model:** `{session.model}`\n"
             f"⚡ **Effort:** `{session.effort}`\n"
-            f"💬 **Session ID:** `{session.conversation_id or 'Phiên mới'}`"
+            f"💬 **Session ID:** "
+            f"`{session.conversation_id or 'Phiên mới'}`"
         )
+
         keyboard = [
             [
-                InlineKeyboardButton("⚙️ Cấu hình Model", callback_data="menu_settings"),
-                InlineKeyboardButton("👤 Tài khoản AI", callback_data="menu_account"),
+                InlineKeyboardButton(
+                    "⚙️ Cấu hình Model",
+                    callback_data="menu_settings",
+                ),
+                InlineKeyboardButton(
+                    "👤 Tài khoản AI",
+                    callback_data="menu_account",
+                ),
             ],
-            [InlineKeyboardButton("⬅️ Trang chủ", callback_data="menu_main")],
+            [
+                InlineKeyboardButton(
+                    "⬅️ Trang chủ",
+                    callback_data="menu_main",
+                )
+            ],
         ]
+
         await query.edit_message_text(
-            msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(keyboard)
+            msg,
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
     elif data == "menu_account":
