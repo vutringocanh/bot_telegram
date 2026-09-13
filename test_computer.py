@@ -27,6 +27,6 @@ print("Click sau 2 giây...")
 
 time.sleep(2)
 
-ComputerTools.click()
+ComputerTools.click(960, 540)
 
 print("DONE")

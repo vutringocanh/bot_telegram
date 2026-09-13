@@ -73,32 +73,64 @@ class ComputerTools:
             "y": int(y),
         }
 
+
     @staticmethod
     def click(
-        x: int | None = None,
-        y: int | None = None,
+        x: int,
+        y: int,
         button: str = "left",
         clicks: int = 1,
     ):
-        """
-        Click chuột.
-        """
+        try:
+            x = int(x)
+            y = int(y)
 
-        if x is not None and y is not None:
-            pyautogui.moveTo(int(x), int(y), duration=0.15)
+            # Lấy kích thước màn hình
+            screen_width, screen_height = pyautogui.size()
 
-        pyautogui.click(
-            button=button,
-            clicks=int(clicks),
-            interval=0.08,
-        )
+            # Không cho phép click sát các góc màn hình.
+            # Vẫn giữ nguyên PyAutoGUI FAILSAFE.
+            margin = 5
 
-        return {
-            "success": True,
-            "action": "click",
-            "button": button,
-            "clicks": int(clicks),
-        }
+            if (
+                x < margin
+                or y < margin
+                or x >= screen_width - margin
+                or y >= screen_height - margin
+            ):
+                return {
+                    "success": False,
+                    "action": "click",
+                    "error": (
+                        f"Tọa độ click không an toàn: ({x}, {y}). "
+                        f"Màn hình: {screen_width}x{screen_height}. "
+                        "Không click sát góc màn hình."
+                    ),
+                }
+
+            pyautogui.click(
+                x=x,
+                y=y,
+                button=button,
+                clicks=int(clicks),
+                interval=0.08,
+            )
+
+            return {
+                "success": True,
+                "action": "click",
+                "x": x,
+                "y": y,
+                "button": button,
+                "clicks": int(clicks),
+            }
+
+        except Exception as exc:
+            return {
+                "success": False,
+                "action": "click",
+                "error": str(exc),
+            }
 
     @staticmethod
     def double_click(x: int, y: int):
