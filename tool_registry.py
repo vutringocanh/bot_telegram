@@ -2,8 +2,7 @@ import asyncio
 from typing import Any
 
 from computer_tools import ComputerTools
-
-
+from ui_inspector import inspect_active_window
 # ============================================================
 # TOOL DEFINITIONS
 # ============================================================
@@ -16,6 +15,25 @@ TOOLS = [
             "description": (
                 "Chụp toàn bộ màn hình Windows hiện tại. "
                 "Dùng để quan sát trạng thái desktop sau mỗi thao tác."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        },
+    },
+    # 👁️ WINDOWS UI INSPECTOR
+    {
+        "type": "function",
+        "function": {
+            "name": "inspect_ui",
+            "description": (
+                "Inspect the currently active Windows application "
+                "using Windows UI Automation. Returns the active "
+                "window and its visible controls, including control "
+                "type, name, automation id, rectangle, center "
+                "coordinates, enabled state and visibility."
             ),
             "parameters": {
                 "type": "object",
@@ -332,6 +350,17 @@ async def execute_tool(
         return await ComputerTools.wait(
             arguments.get("seconds", 1)
         )
+
+    if name == "inspect_ui":
+        try:
+            return inspect_active_window(
+                max_controls=200
+            )
+        except Exception as exc:
+            return {
+                "success": False,
+                "error": f"UI inspection failed: {exc}",
+            }
 
     return {
         "success": False,
